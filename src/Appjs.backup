@@ -1,0 +1,186 @@
+import React, {Component} from 'react';
+import './App.css';
+import axios from "axios";
+import Moment from 'moment';
+import config from './data/config'
+import logo from './images/captains11.png';
+import { Input, Button } from 'semantic-ui-react';
+
+
+//let time = new Date().toLocaleString();
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+	  user: '',
+	  passcode: '',
+	  query: '',
+	  error: '',
+	  fieldNames: [],
+	  dataRows: [],
+	  loggedIn: false,
+      time: Moment().format('DD MMMM YYYY, h:mm:ss A')
+    };
+  }
+  componentDidMount() {
+    // this.intervalID = setInterval(
+      // () => this.tick(),
+      // 1000
+    // );
+  }
+  componentWillUnmount() {
+    clearInterval(this.intervalID);
+  }
+  tick() {
+    this.setState({
+      time: Moment().format('DD MMMM YYYY, h:mm:ss A')
+    });
+  }
+ handleChange = (e) => {
+  this.setState({
+    [e.target.name]: e.target.value
+  });
+}
+authenticateUser = async () => {
+   try {
+    let data = {};
+    data.username = this.state.user;
+    data.password = this.state.passcode;
+    console.log('authUrl:',config.adminAuth);
+    console.log('payload:',data);
+    await axios.post(config.adminAuth, data).then(
+      res => {
+        console.log('response2',res.data);
+        this.setState({
+         loggedIn: true,
+         error: ''
+       });
+      })
+      .catch(
+        error => {
+          console.log(error);
+          this.setState({
+           error: "Invalid User"
+         });
+        })
+      } catch (err) {
+        console.log('Error Occured');
+      }
+}
+executeQ = async () => {
+   console.log('Q',this.state.query);
+   console.log('url',config.queryUrl);
+   let data = {};
+   data.query = this.state.query;
+   try {
+    await axios.post(config.queryUrl, data).then(
+      res => {
+		    console.log('response2',res.data);
+			// if(!res.data.success) {
+				 // console.log('message',res.data.message);
+				// this.setState({
+					// error: res.data.message,
+					// fieldNames: [],
+					// dataRows: []
+				// });
+			// }
+			this.setState({
+					fieldNames: res.data.data.fields,
+					dataRows: res.data.data.rows,
+					error: ''
+				});
+        })
+        .catch(
+          error => {
+		    this.setState({
+					error: 'Invalid Query',
+					fieldNames: [],
+					dataRows: []
+				});
+            console.log(error);
+          })
+    } catch (err) {
+      console.log('Error Occured');
+    }
+}
+
+renderHeader() {
+  console.log('renderHeader');
+  let thead = [];
+  for (let i = 0; i < this.state.fieldNames.length; i++) {
+    thead.push(<th> {this.state.fieldNames[i].name} </th>)
+  }
+  return thead;
+}
+
+renderRows() {
+  console.log('renderRowa');
+  let rows = [];
+  for (let i = 0; i < this.state.dataRows.length; i++) {
+	  let columns = [];
+	  for (let j = 0; j < this.state.fieldNames.length; j++) {
+		  //console.log(this.state.dataRows[i][[this.state.fieldNames[j].name]]);
+		  columns.push(<td>{this.state.dataRows[i][this.state.fieldNames[j].name]}</td>);
+	  }
+	  rows.push(<tr class='left aligned'>{columns}</tr>);
+  }
+  return rows;
+}
+
+render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+		  <div className="App-Label">
+			<p> {this.state.time}. </p>
+		  </div>
+		   {!this.state.loggedIn &&
+			  <div>
+				  <p>
+					<Input type="text" placeholder="User Name..." name='user' value={this.state.user} onChange={this.handleChange.bind(this)} />
+				  </p>
+				  <p>
+					<Input type="password" placeholder="Password..." name='passcode' value={this.state.passcode} onChange={this.handleChange.bind(this)} />
+				  </p>
+				  <p>
+					<Button class="ui button" onClick={this.authenticateUser} > <b> Submit </b> </Button>
+				  </p>
+			  </div>
+		   }
+		   {this.state.loggedIn &&
+		      <div>
+					<p> Welcome {this.state.user}, Enter your query here </p>
+					<div class="field">
+						<textarea name='query' cols="75" rows="2" onChange={this.handleChange.bind(this)}></textarea>
+					</div>
+					<p>
+					<Button class="ui button" onClick={this.executeQ} > <b> Execute </b> </Button>
+				  </p>
+			  </div>
+		   }
+		   {this.state.fieldNames && this.state.fieldNames.length > 0 &&
+			  <div class="Result-Table">
+					<p> </p> <p> <div class="App-Label">Query Results</div></p> <p> </p>
+					<table class="ui striped table">
+					  <thead>
+						<tr> {this.renderHeader()} </tr>
+					  </thead>
+					  <tbody>  {this.renderRows()}  </tbody>
+					</table>
+			  </div>
+		   }
+		   {this.state.error &&
+				<div class="App-Error">
+					<p> </p> <p> </p>
+					<input type="text" name='error'  placeholder={this.state.error} placeholderTextColor='ff0000' value={this.state.error} readonly="" style={{color: 'red'}} />
+				</div>
+		   }
+      </header>
+    </div>
+
+    );
+  }
+}
+
+export default App;

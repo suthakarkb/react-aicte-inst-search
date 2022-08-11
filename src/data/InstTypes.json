@@ -1,0 +1,35 @@
+{
+    "type": "success",
+    "types": [
+        {
+            "inst_type": "Private-Self Financing"
+        },
+        {
+            "inst_type": "Government"
+        },
+        {
+            "inst_type": "Govt aided"
+        },
+        {
+            "inst_type": "Deemed to be University(Pvt),"
+        },
+        {
+            "inst_type": "State Government University"
+        },
+        {
+            "inst_type": "Deemed to be University(Govt),"
+        },
+        {
+            "inst_type": "State Private University"
+        },
+        {
+            "inst_type": "Central University"
+        },
+        {
+            "inst_type": "Deemed to be University(Pvt)"
+        },
+        {
+            "inst_type": "Deemed to be University(Govt)"
+        }
+    ]
+}
