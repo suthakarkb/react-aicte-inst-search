@@ -77,13 +77,13 @@ retrieveDiscticts = async (stateid) => {
     }
 }
 
-retrieveInstData = async () => {
+retrieveInstData = async (district1) => {
    try {
     let data = {};
 	let selectedState = [];
 	let selectedDistrict = [];
 	selectedState.push(this.state.istate);
-	selectedDistrict.push(this.state.idistrict);
+	selectedDistrict.push(district1);
     data.state = selectedState;
     data.district = selectedDistrict;
     console.log('getInstDetailsUrl:',config.getInstituteDetails);
@@ -143,7 +143,7 @@ renderRows() {
 		idistrict: data.value	
 	}); 
    console.log(data.value);
-   await this.retrieveInstData();
+   await this.retrieveInstData(data.value);
 };
   
 render() {
